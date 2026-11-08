@@ -611,7 +611,7 @@
         </div>
       </div>
 
-      <!-- Paso 2: Riesgo por Operación (Input directo a 1.00%) -->
+      <!-- Paso 2: Riesgo por Operación (Input directo) -->
       <div class="wizard-step" id="w-step-2">
         <h4 style="margin-bottom:8px; font-size:15px;">Gestión de Riesgo (1R)</h4>
         <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Introduce el porcentaje de tu cuenta que arriesgarás como unidad de riesgo fija (1R):</p>
@@ -681,12 +681,18 @@
       </div>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:1rem;">Exporta tu archivo JSON para respaldar tus operaciones o importarlo en otro dispositivo.</p>
       
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex; gap:8px; margin-bottom:1rem;">
         <button class="btn btn-primary" onclick="exportarBackupJSON()" style="flex:1;">⬇️ Exportar Backup</button>
         <label class="btn btn-ghost" style="flex:1; cursor:pointer; margin:0;">
           ⬆️ Importar Backup
           <input type="file" accept=".json" onchange="importarBackupJSON(event)" style="display:none;">
         </label>
+      </div>
+
+      <div style="border-top:1px solid var(--border); padding-top:1rem; text-align:center;">
+        <button type="button" onclick="reiniciarAppDeCero()" style="background:transparent; border:none; color:var(--red); font-size:11px; cursor:pointer; text-decoration:underline;">
+          ⚠️ Borrar todos los datos y reiniciar asistente
+        </button>
       </div>
     </div>
     <div class="modal-footer">
@@ -850,6 +856,26 @@ function onTickerInput(val) {
   }
 }
 
+/* ─── ACTUALIZACIÓN EN VIVO TASA EUR/USD ─── */
+let currentFxRate = 1.08;
+
+async function actualizarTasaFxEnVivo() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/EUR');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.rates && data.rates.USD) {
+        currentFxRate = parseFloat(data.rates.USD);
+        const eur = parseFloat(document.getElementById('c-cap-eur').value) || 0;
+        document.getElementById('c-cap-usd').value = Math.round(eur * currentFxRate);
+        recalcPositionSize();
+      }
+    }
+  } catch (e) {
+    console.warn('Usando ratio EUR/USD por defecto:', currentFxRate);
+  }
+}
+
 /* ─── ESTADO LOCAL-FIRST ─── */
 let userProfile = {
   name: 'Mi Cuenta',
@@ -857,7 +883,6 @@ let userProfile = {
   accounts: [{ name: 'Mi Cuenta', eur: 10000 }]
 };
 
-let currentFxRate = 1.10;
 let currentOpType = 'TRADE';
 let computedUserShares = 0;
 let trades = [];
@@ -876,6 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
   cargarBaseTickersCompleta();
   cargarDatosLocales();
+  actualizarTasaFxEnVivo();
 });
 
 function cargarDatosLocales() {
@@ -885,7 +911,13 @@ function cargarDatosLocales() {
   if (!profileSaved) {
     openWizard();
   } else {
-    try { userProfile = JSON.parse(profileSaved); } catch (e) {}
+    try { 
+      userProfile = JSON.parse(profileSaved); 
+      if (!userProfile.accounts || userProfile.accounts.length === 0) {
+        userProfile.accounts = [{ name: userProfile.name || 'Mi Cuenta', eur: 10000 }];
+      }
+    } catch (e) {}
+    
     if (tradesSaved) {
       try { trades = JSON.parse(tradesSaved); } catch (e) {}
     }
@@ -967,6 +999,11 @@ function onCalcCapitalEurChange() {
   const eur = parseFloat(document.getElementById('c-cap-eur').value) || 0;
   const usd = eur * currentFxRate;
   document.getElementById('c-cap-usd').value = Math.round(usd);
+  
+  if (!userProfile.hasSubaccounts || userProfile.accounts.length <= 1) {
+    userProfile.accounts[0].eur = eur;
+    localStorage.setItem('tlr_com_profile', JSON.stringify(userProfile));
+  }
   recalcPositionSize();
 }
 
@@ -1113,7 +1150,7 @@ function pasarCalculoAHistorial() {
   if (shares && shares > 0) document.getElementById('f-shares').value = shares;
 }
 
-/* ─── GESTIÓN DE HISTORIAL EN LOCALSTORAGE ─── */
+/* ─── HISTORIAL EN LOCALSTORAGE ─── */
 function refreshApp() {
   const baseCap = userProfile.accounts[0] ? userProfile.accounts[0].eur : 10000;
   let running = baseCap;
@@ -1542,7 +1579,7 @@ function wizardNext() {
     if (!name) { alert('Por favor, introduce tu nombre o alias.'); return; }
     if (isNaN(cap) || cap <= 0) { alert('Introduce un capital inicial válido.'); return; }
     userProfile.name = name;
-    userProfile.accounts[0] = { name: name, eur: cap };
+    userProfile.accounts = [{ name: name, eur: cap }];
     wizardStep = 2;
     showWizardStep(2);
   } else if (wizardStep === 2) {
@@ -1598,6 +1635,8 @@ function finalizarWizard() {
       }
     });
   }
+
+  userProfile.hasSubaccounts = userProfile.accounts.length > 1;
 
   localStorage.setItem('tlr_com_profile', JSON.stringify(userProfile));
   document.getElementById('wizardModal').classList.remove('open');
@@ -1673,6 +1712,13 @@ function guardarAjustes() {
   closeSettingsModal();
   aplicarPerfilEnInterfaz();
   refreshApp();
+}
+
+function reiniciarAppDeCero() {
+  if (confirm('¿Seguro que quieres borrar la configuración y empezar de cero con el asistente?')) {
+    localStorage.removeItem('tlr_com_profile');
+    location.reload();
+  }
 }
 
 function exportarBackupJSON() {
