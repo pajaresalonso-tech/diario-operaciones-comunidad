@@ -327,7 +327,7 @@
           <div class="calc-group">
             <label class="calc-label">Capital Cartera ($)</label>
             <div class="calc-input-wrap">
-              <input type="number" inputmode="decimal" id="c-cap-usd" class="calc-input" value="11000" step="100" oninput="onCalcCapitalUsdChange()">
+              <input type="number" inputmode="decimal" id="c-cap-usd" class="calc-input" value="10800" step="100" oninput="onCalcCapitalUsdChange()">
               <span class="calc-suffix">USD</span>
             </div>
           </div>
@@ -594,12 +594,12 @@
 
       <!-- Paso 1: Nombre y Capital -->
       <div class="wizard-step active" id="w-step-1">
-        <h4 style="margin-bottom:8px; font-size:15px;">¡Bienvenido a TradeLog!</h4>
+        <h4 style="margin-bottom:8px; font-size:15px;">¡Bienvenido a tu herramienta para calcular posiciones y guardar operaciones!</h4>
         <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Tus datos son 100% privados y se almacenan únicamente en tu navegador.</p>
         
         <div class="calc-group" style="margin-bottom:1rem;">
           <label class="calc-label">Tu Nombre o Alias</label>
-          <input type="text" id="wiz-name" class="calc-input" placeholder="Ej: Jaime, Carlos..." value="">
+          <input type="text" id="wiz-name" class="calc-input" placeholder="Ej: Jaime, Javier..." value="">
         </div>
 
         <div class="calc-group">
@@ -611,7 +611,7 @@
         </div>
       </div>
 
-      <!-- Paso 2: Riesgo por Operación (Input directo) -->
+      <!-- Paso 2: Riesgo por Operación (Input numérico directo a 1.00%) -->
       <div class="wizard-step" id="w-step-2">
         <h4 style="margin-bottom:8px; font-size:15px;">Gestión de Riesgo (1R)</h4>
         <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Introduce el porcentaje de tu cuenta que arriesgarás como unidad de riesgo fija (1R):</p>
@@ -1579,7 +1579,7 @@ function wizardNext() {
     if (!name) { alert('Por favor, introduce tu nombre o alias.'); return; }
     if (isNaN(cap) || cap <= 0) { alert('Introduce un capital inicial válido.'); return; }
     userProfile.name = name;
-    userProfile.accounts = [{ name: name, eur: cap }];
+    userProfile.accounts[0] = { name: name, eur: cap };
     wizardStep = 2;
     showWizardStep(2);
   } else if (wizardStep === 2) {
