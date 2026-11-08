@@ -335,7 +335,7 @@
           <div class="calc-group">
             <label class="calc-label">Riesgo por Operación (%)</label>
             <div class="calc-input-wrap">
-              <input type="number" inputmode="decimal" id="c-risk-pct" class="calc-input" value="0.50" step="0.05" oninput="recalcPositionSize()">
+              <input type="number" inputmode="decimal" id="c-risk-pct" class="calc-input" value="1.00" step="0.05" oninput="recalcPositionSize()">
               <span class="calc-suffix">%</span>
             </div>
           </div>
@@ -384,7 +384,7 @@
       <div class="calc-card" style="display:flex; flex-direction:column; justify-content:space-between;">
         <div>
           <div class="calc-title">
-            <span id="label-sizing-title">📊 Dimensionamiento Global</span>
+            <span id="label-sizing-title">📊 Dimensionamiento de Posición</span>
           </div>
 
           <div class="hero-shares-box">
@@ -398,14 +398,14 @@
               <div class="metric-spotlight-val" id="res-capital-buy">$0.00</div>
             </div>
             <div class="metric-spotlight-card">
-              <div class="metric-spotlight-lbl" id="label-user-pct">% Cartera Personal</div>
+              <div class="metric-spotlight-lbl" id="label-user-pct">% Cartera Ocupada</div>
               <div class="metric-spotlight-val accent" id="res-user-pct">0.00%</div>
             </div>
           </div>
 
           <div class="calc-results-box">
             <div class="calc-res-item" id="row-user-cap">
-              <span class="calc-res-lbl" id="label-user-cap">Importe asignado:</span>
+              <span class="calc-res-lbl" id="label-user-cap">Importe posición:</span>
               <span class="calc-res-val" id="res-user-cap">$0.00 (0 acc)</span>
             </div>
             <div class="calc-res-item">
@@ -414,7 +414,7 @@
             </div>
           </div>
 
-          <!-- CONTENEDOR DE SUBCUENTAS (SE OCULTA SI NO TIENE) -->
+          <!-- CONTENEDOR DE SUBCUENTAS -->
           <div id="subaccounts-section" style="display:none; margin-bottom:1rem;">
             <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--text-secondary); margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
               <span>👥 Cartera y Subcuentas</span>
@@ -455,12 +455,9 @@
           </div>
         </div>
 
-        <div style="margin-top:1rem; display:flex; flex-direction:column; gap:8px;">
+        <div style="margin-top:1rem;">
           <button class="btn btn-primary" onclick="pasarCalculoAHistorial()" style="width:100%;">
             📥 Pasar a Historial
-          </button>
-          <button class="btn btn-ghost" onclick="copiarAlPortapapelesDiscord()" style="width:100%;">
-            📋 Copiar Resumen para Discord
           </button>
         </div>
       </div>
@@ -582,7 +579,7 @@
 
 </div>
 
-<!-- ─── MODAL ONBOARDING WIZARD (PRIMERA VISITA) ─── -->
+<!-- ─── MODAL ONBOARDING WIZARD ─── -->
 <div class="modal-overlay" id="wizardModal">
   <div class="modal" style="max-width: 520px;">
     <div class="modal-header">
@@ -597,41 +594,41 @@
 
       <!-- Paso 1: Nombre y Capital -->
       <div class="wizard-step active" id="w-step-1">
-        <h4 style="margin-bottom:8px; font-size:15px;">¡Bienvenido a tu diario de operaciones!</h4>
+        <h4 style="margin-bottom:8px; font-size:15px;">¡Bienvenido a TradeLog!</h4>
         <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Tus datos son 100% privados y se almacenan únicamente en tu navegador.</p>
         
         <div class="calc-group" style="margin-bottom:1rem;">
           <label class="calc-label">Tu Nombre o Alias</label>
-          <input type="text" id="wiz-name" class="calc-input" placeholder="Ej: Jaime, Javier..." value="">
+          <input type="text" id="wiz-name" class="calc-input" placeholder="Ej: Jaime, Carlos..." value="">
         </div>
 
         <div class="calc-group">
           <label class="calc-label">Capital Total de tu Cartera (€)</label>
           <div class="calc-input-wrap">
-            <input type="number" inputmode="decimal" id="wiz-capital" class="calc-input" placeholder="10000" step="100">
+            <input type="number" inputmode="decimal" id="wiz-capital" class="calc-input" placeholder="10000" value="10000" step="100">
             <span class="calc-suffix">EUR</span>
           </div>
         </div>
       </div>
 
-      <!-- Paso 2: Riesgo por Operación -->
+      <!-- Paso 2: Riesgo por Operación (Input directo a 1.00%) -->
       <div class="wizard-step" id="w-step-2">
         <h4 style="margin-bottom:8px; font-size:15px;">Gestión de Riesgo (1R)</h4>
-        <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Selecciona el porcentaje de tu cartera que arriesgas por operación por defecto:</p>
+        <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Introduce el porcentaje de tu cuenta que arriesgarás como unidad de riesgo fija (1R):</p>
         
-        <div class="radio-card-grid">
-          <div class="radio-card" onclick="selectWizardRisk(0.25)" id="risk-opt-025">0,25% (Conservador)</div>
-          <div class="radio-card selected" onclick="selectWizardRisk(0.50)" id="risk-opt-050">0,50% (Estándar TLR)</div>
-          <div class="radio-card" onclick="selectWizardRisk(0.75)" id="risk-opt-075">0,75% (Moderado)</div>
-          <div class="radio-card" onclick="selectWizardRisk(1.00)" id="risk-opt-100">1,00% (Agresivo)</div>
+        <div class="calc-group">
+          <label class="calc-label">Riesgo por Operación (%)</label>
+          <div class="calc-input-wrap">
+            <input type="number" inputmode="decimal" id="wiz-risk" class="calc-input" value="1.00" step="0.05">
+            <span class="calc-suffix">%</span>
+          </div>
         </div>
-        <input type="hidden" id="wiz-risk" value="0.50">
       </div>
 
       <!-- Paso 3: Subcuentas -->
       <div class="wizard-step" id="w-step-3">
         <h4 style="margin-bottom:8px; font-size:15px;">¿Gestionas varias carteras o subcuentas?</h4>
-        <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Si operas una cuenta conjunta o administras dinero familiar, podrás dimensionar y repartir cada compra automáticamente.</p>
+        <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Si operas una cuenta conjunta o administras capital familiar, podrás dimensionar y repartir cada compra automáticamente.</p>
         
         <div class="radio-card-grid" style="margin-bottom:1rem;">
           <div class="radio-card selected" onclick="toggleWizardSubaccounts(false)" id="sub-opt-no">No, solo mi cuenta</div>
@@ -653,27 +650,36 @@
   </div>
 </div>
 
-<!-- ─── MODAL AJUSTES Y BACKUP ─── -->
+<!-- ─── MODAL AJUSTES Y GESTIÓN DE SUBCUENTAS ─── -->
 <div class="modal-overlay" id="settingsModal" onclick="closeSettingsIfOverlay(event)">
-  <div class="modal" style="max-width: 520px;">
+  <div class="modal" style="max-width: 540px;">
     <div class="modal-header">
-      <h3 style="font-size:15px;">Ajustes de Cuenta y Copia de Seguridad</h3>
+      <h3 style="font-size:15px;">Ajustes de Cuenta</h3>
       <button class="action-btn" onclick="closeSettingsModal()">✕</button>
     </div>
     <div class="modal-body">
       <div class="calc-group" style="margin-bottom:1rem;">
-        <label class="calc-label">Nombre / Alias</label>
+        <label class="calc-label">Nombre / Alias Principal</label>
         <input type="text" id="set-name" class="calc-input">
       </div>
       <div class="calc-group" style="margin-bottom:1.25rem;">
-        <label class="calc-label">Capital Total Cartera (€)</label>
+        <label class="calc-label">Capital Cartera Principal (€)</label>
         <input type="number" inputmode="decimal" id="set-capital" class="calc-input" step="100">
       </div>
 
-      <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-secondary); margin-bottom:8px;">
+      <!-- SECCIÓN GESTIÓN DE SUBCUENTAS EN AJUSTES -->
+      <div style="border-top:1px solid var(--border); padding-top:1rem; margin-bottom:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--text-secondary);">Subcuentas adicionales</span>
+          <button type="button" class="btn btn-ghost" onclick="addSettingsSubaccountRow()" style="font-size:11px; padding:4px 8px; min-height:28px;">+ Añadir cuenta</button>
+        </div>
+        <div id="set-subaccounts-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-secondary); margin-bottom:8px; border-top:1px solid var(--border); padding-top:1rem;">
         💾 Copia de Seguridad (Exportar / Importar)
       </div>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:1rem;">Exporta tu archivo JSON para respaldar tus operaciones o importarlo en otro dispositivo (PC o móvil).</p>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:1rem;">Exporta tu archivo JSON para respaldar tus operaciones o importarlo en otro dispositivo.</p>
       
       <div style="display:flex; gap:8px;">
         <button class="btn btn-primary" onclick="exportarBackupJSON()" style="flex:1;">⬇️ Exportar Backup</button>
@@ -926,7 +932,7 @@ function setOpType(type) {
   recalcPositionSize();
 }
 
-/* ─── TABLA SUBCUENTAS (SI APLICA) ─── */
+/* ─── TABLA SUBCUENTAS ─── */
 function renderSubaccountsTable() {
   const tbody = document.getElementById('subaccountsTableBody');
   const totalBaseEur = userProfile.accounts.reduce((acc, a) => acc + (parseFloat(a.eur) || 0), 0);
@@ -1037,7 +1043,6 @@ function recalcPositionSize() {
     document.getElementById('res-target-3r').textContent = `—`;
   }
 
-  // Reparto para cuenta individual vs subcuentas
   if (userProfile.hasSubaccounts && userProfile.accounts.length > 1) {
     const totalBaseEur = userProfile.accounts.reduce((acc, a) => acc + (parseFloat(a.eur) || 0), 0);
     userProfile.accounts.forEach((acc, idx) => {
@@ -1066,7 +1071,6 @@ function recalcPositionSize() {
     document.getElementById('res-user-cap').textContent = `$${fmt(buyCapital)} (${totalShares} acc)`;
   }
 
-  // Validación Técnica ADR Estricta
   const adrBanner = document.getElementById('adr-banner');
   if (adr > 0 && stopPct > 0) {
     adrBanner.style.display = 'flex';
@@ -1107,25 +1111,6 @@ function pasarCalculoAHistorial() {
   if (entry) document.getElementById('f-entry').value = entry;
   if (stop) document.getElementById('f-stop').value = stop;
   if (shares && shares > 0) document.getElementById('f-shares').value = shares;
-}
-
-function copiarAlPortapapelesDiscord() {
-  const ticker = (document.getElementById('c-ticker').value || '').toUpperCase().trim();
-  const company = document.getElementById('c-company').value.trim() || 'Compañía';
-  const entry = parseFloat(document.getElementById('c-entry').value) || 0;
-  const stop = parseFloat(document.getElementById('c-stop-price').value) || 0;
-  const stopPct = parseFloat(document.getElementById('c-stop-pct').value) || 0;
-  const riskPct = parseFloat(document.getElementById('c-risk-pct').value) || 0;
-
-  const text = `[${currentOpType}]
-${company} | $${ticker}
-Precio de compra: $${fmt(entry)}
-Stop Loss: $${fmt(stop)} (-${fmt(stopPct)}%)
-Riesgo asumido: ${fmt(riskPct)}% (1R)`;
-
-  navigator.clipboard.writeText(text).then(() => {
-    alert('¡Ficha copiada con el formato exacto de Discord!');
-  });
 }
 
 /* ─── GESTIÓN DE HISTORIAL EN LOCALSTORAGE ─── */
@@ -1561,7 +1546,8 @@ function wizardNext() {
     wizardStep = 2;
     showWizardStep(2);
   } else if (wizardStep === 2) {
-    const risk = parseFloat(document.getElementById('wiz-risk').value) || 0.50;
+    const risk = parseFloat(document.getElementById('wiz-risk').value);
+    if (isNaN(risk) || risk <= 0) { alert('Introduce un porcentaje de riesgo válido.'); return; }
     document.getElementById('c-risk-pct').value = risk.toFixed(2);
     wizardStep = 3;
     showWizardStep(3);
@@ -1577,23 +1563,11 @@ function wizardPrev() {
   }
 }
 
-function selectWizardRisk(val) {
-  document.querySelectorAll('.radio-card-grid .radio-card').forEach(c => c.classList.remove('selected'));
-  if (val === 0.25) document.getElementById('risk-opt-025').classList.add('selected');
-  if (val === 0.50) document.getElementById('risk-opt-050').classList.add('selected');
-  if (val === 0.75) document.getElementById('risk-opt-075').classList.add('selected');
-  if (val === 1.00) document.getElementById('risk-opt-100').classList.add('selected');
-  document.getElementById('wiz-risk').value = val;
-}
-
 function toggleWizardSubaccounts(has) {
   userProfile.hasSubaccounts = has;
   document.getElementById('sub-opt-no').classList.toggle('selected', !has);
   document.getElementById('sub-opt-yes').classList.toggle('selected', has);
   document.getElementById('wiz-subaccounts-builder').style.display = has ? 'block' : 'none';
-  if (has && document.getElementById('wiz-subaccounts-list').children.length === 0) {
-    addWizardSubaccountRow('Familiar', 5000);
-  }
 }
 
 function addWizardSubaccountRow(defName = '', defEur = '') {
@@ -1602,7 +1576,7 @@ function addWizardSubaccountRow(defName = '', defEur = '') {
   div.style.display = 'flex';
   div.style.gap = '6px';
   div.innerHTML = `
-    <input type="text" class="calc-input wiz-sub-name" placeholder="Nombre" value="${defName}" style="flex:1;">
+    <input type="text" class="calc-input wiz-sub-name" placeholder="Nombre cuenta" value="${defName}" style="flex:1;">
     <input type="number" inputmode="decimal" class="calc-input wiz-sub-eur" placeholder="€" value="${defEur}" style="width:110px;">
     <button type="button" class="action-btn" onclick="this.parentElement.remove()" style="color:var(--red);">✕</button>
   `;
@@ -1610,10 +1584,12 @@ function addWizardSubaccountRow(defName = '', defEur = '') {
 }
 
 function finalizarWizard() {
+  const mainCap = userProfile.accounts[0].eur;
+  userProfile.accounts = [{ name: userProfile.name, eur: mainCap }];
+
   if (userProfile.hasSubaccounts) {
     const names = document.querySelectorAll('.wiz-sub-name');
     const eurs = document.querySelectorAll('.wiz-sub-eur');
-    userProfile.accounts = [{ name: userProfile.name, eur: userProfile.accounts[0].eur }];
     names.forEach((input, i) => {
       const n = input.value.trim();
       const val = parseFloat(eurs[i].value);
@@ -1629,27 +1605,70 @@ function finalizarWizard() {
   refreshApp();
 }
 
-/* ─── MODAL AJUSTES Y BACKUP ─── */
+/* ─── MODAL AJUSTES Y GESTIÓN DE SUBCUENTAS ─── */
 function openSettingsModal() {
   document.getElementById('set-name').value = userProfile.name || '';
-  const totalEur = userProfile.accounts.reduce((sum, a) => sum + (parseFloat(a.eur) || 0), 0);
-  document.getElementById('set-capital').value = totalEur;
+  const mainCap = userProfile.accounts[0] ? userProfile.accounts[0].eur : 10000;
+  document.getElementById('set-capital').value = mainCap;
+
+  renderSettingsSubaccountsList();
   document.getElementById('settingsModal').classList.add('open');
 }
 
 function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('open'); }
 function closeSettingsIfOverlay(e) { if(e.target.id === 'settingsModal') closeSettingsModal(); }
 
+function renderSettingsSubaccountsList() {
+  const container = document.getElementById('set-subaccounts-list');
+  container.innerHTML = '';
+  
+  const additional = userProfile.accounts.slice(1);
+  if (additional.length === 0) {
+    container.innerHTML = `<span style="font-size:12px; color:var(--text-muted);">No tienes subcuentas adicionales configuradas.</span>`;
+    return;
+  }
+
+  additional.forEach(acc => {
+    addSettingsSubaccountRow(acc.name, acc.eur);
+  });
+}
+
+function addSettingsSubaccountRow(name = '', eur = '') {
+  const container = document.getElementById('set-subaccounts-list');
+  if (container.querySelector('span')) container.innerHTML = '';
+
+  const div = document.createElement('div');
+  div.style.display = 'flex';
+  div.style.gap = '6px';
+  div.innerHTML = `
+    <input type="text" class="calc-input set-sub-name" placeholder="Nombre cuenta" value="${name}" style="flex:1;">
+    <input type="number" inputmode="decimal" class="calc-input set-sub-eur" placeholder="€" value="${eur}" style="width:110px;">
+    <button type="button" class="action-btn" onclick="this.parentElement.remove()" style="color:var(--red);">✕</button>
+  `;
+  container.appendChild(div);
+}
+
 function guardarAjustes() {
   const name = document.getElementById('set-name').value.trim();
   const cap = parseFloat(document.getElementById('set-capital').value);
-  if (!name || isNaN(cap) || cap <= 0) { alert('Datos no válidos.'); return; }
+  if (!name || isNaN(cap) || cap <= 0) { alert('Nombre y capital principal no válidos.'); return; }
 
   userProfile.name = name;
-  if (userProfile.accounts.length > 0) {
-    userProfile.accounts[0].name = name;
-    userProfile.accounts[0].eur = cap;
-  }
+  userProfile.accounts = [{ name: name, eur: cap }];
+
+  const subNames = document.querySelectorAll('.set-sub-name');
+  const subEurs = document.querySelectorAll('.set-sub-eur');
+  
+  subNames.forEach((input, i) => {
+    const n = input.value.trim();
+    const val = parseFloat(subEurs[i].value);
+    if (n && !isNaN(val) && val > 0) {
+      userProfile.accounts.push({ name: n, eur: val });
+    }
+  });
+
+  userProfile.hasSubaccounts = userProfile.accounts.length > 1;
+
   localStorage.setItem('tlr_com_profile', JSON.stringify(userProfile));
   closeSettingsModal();
   aplicarPerfilEnInterfaz();
