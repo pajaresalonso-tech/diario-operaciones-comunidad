@@ -218,7 +218,8 @@
     .trade-table tbody tr:hover { background: var(--bg-hover); }
     .trade-table tbody td { padding: 10px 12px; font-size: 13px; vertical-align: middle; }
     .cell-mono { font-family: var(--mono); font-size: 12px; }
-    .cell-symbol { font-family: var(--mono); font-weight: 600; font-size: 13px; color: var(--blue); }
+    .cell-symbol { font-family: var(--mono); font-weight: 600; font-size: 13px; color: var(--blue); cursor: pointer; }
+    .cell-symbol:hover { text-decoration: underline; }
     
     .badge { display: inline-flex; padding: 3px 7px; border-radius: 5px; font-family: var(--mono); font-size: 10px; font-weight: 500; }
     .badge-long { background: var(--green-dim); color: var(--green-light); }
@@ -226,7 +227,8 @@
     .tag-pill { display: inline-flex; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: var(--mono); background: var(--blue-dim); color: var(--blue); }
     .thumb-btn { width: 34px; height: 26px; border-radius: 5px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .thumb-btn img { width: 100%; height: 100%; object-fit: cover; }
-    .action-btn { background: transparent; border: none; font-size: 14px; cursor: pointer; margin-right: 5px; opacity: 0.7; padding: 4px; }
+    .action-btn { background: transparent; border: none; font-size: 14px; cursor: pointer; margin-right: 5px; opacity: 0.75; padding: 4px; }
+    .action-btn:hover { opacity: 1; }
 
     /* ─── MODALES ─── */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 1rem; }
@@ -275,10 +277,10 @@
 <body>
 
 <header class="header">
-  <div class="logo">
+  <a href="https://www.thelongruninversiones.com" target="_blank" rel="noopener noreferrer" class="logo" style="text-decoration:none;">
     <img src="./logo.png" alt="The Long Run" class="logo-img" onerror="this.style.display='none'">
-    <span class="logo-text">Diario de Operaciones | <span>The Long Run</span></span>
-  </div>
+    <span class="logo-text">Diario de Operaciones | <span>The Long Run</span> ↗</span>
+  </a>
   <div class="header-actions">
     <button class="icon-btn" onclick="openSettingsModal()" title="Configuración de Cuenta">⚙️ Ajustes</button>
     <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()">☀️ Claro</button>
@@ -327,7 +329,7 @@
           <div class="calc-group">
             <label class="calc-label">Capital Cartera ($)</label>
             <div class="calc-input-wrap">
-              <input type="number" inputmode="decimal" id="c-cap-usd" class="calc-input" value="10800" step="100" oninput="onCalcCapitalUsdChange()">
+              <input type="number" inputmode="decimal" id="c-cap-usd" class="calc-input" value="11000" step="100" oninput="onCalcCapitalUsdChange()">
               <span class="calc-suffix">USD</span>
             </div>
           </div>
@@ -471,7 +473,7 @@
       <div style="display:flex; align-items:center; gap: 10px; flex:1;">
         <h2 style="font-size: 15px; font-weight: 600;">Operaciones</h2>
         <div class="search-box">
-          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 14z"/></svg>
           <input type="text" id="tickerSearchInput" class="search-input" placeholder="Buscar ticker..." oninput="renderTable()" style="text-transform:uppercase;">
         </div>
       </div>
@@ -577,6 +579,18 @@
     </div>
   </div>
 
+  <!-- PIE DE PÁGINA CON ENLACE A LA WEB -->
+  <footer style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--text-muted);">
+    <div>
+      Una herramienta desarrollada por <strong style="color:var(--text-secondary);">The Long Run</strong> para la comunidad.
+    </div>
+    <div>
+      <a href="https://www.thelongruninversiones.com" target="_blank" rel="noopener noreferrer" style="color:var(--green-light); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+        🌐 Visitar thelongruninversiones.com ↗
+      </a>
+    </div>
+  </footer>
+
 </div>
 
 <!-- ─── MODAL ONBOARDING WIZARD ─── -->
@@ -611,7 +625,7 @@
         </div>
       </div>
 
-      <!-- Paso 2: Riesgo por Operación (Input numérico directo a 1.00%) -->
+      <!-- Paso 2: Riesgo por Operación (Input numérico directo) -->
       <div class="wizard-step" id="w-step-2">
         <h4 style="margin-bottom:8px; font-size:15px;">Gestión de Riesgo (1R)</h4>
         <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Introduce el porcentaje de tu cuenta que arriesgarás como unidad de riesgo fija (1R):</p>
@@ -705,7 +719,7 @@
 <div class="modal-overlay" id="addModal" onclick="closeModalIfOverlay(event)">
   <div class="modal">
     <div class="modal-header">
-      <h3 style="font-size:15px;">Registrar Operación</h3>
+      <h3 style="font-size:15px;" id="modalTradeTitle">Registrar Operación</h3>
       <button class="action-btn" onclick="closeAddModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -739,23 +753,40 @@
           <input type="number" inputmode="decimal" class="form-input" id="f-shares" step="any" placeholder="Ej: 100" oninput="autoCalcularPnL()">
         </div>
         <div class="form-group">
+          <label class="form-label">Precio de Entrada ($)</label>
+          <input type="number" inputmode="decimal" class="form-input" id="f-entry" step="0.01" oninput="autoCalcularPnL()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stop Loss Inicial ($)</label>
+          <input type="number" inputmode="decimal" class="form-input" id="f-stop" step="0.01">
+        </div>
+
+        <!-- MODIFICACIÓN 1: SALIDAS PARCIALES -->
+        <div class="form-group full" style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-top:2px;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; font-weight:600; color:var(--text-primary); margin:0;">
+            <input type="checkbox" id="f-has-partials" onchange="togglePartialsSection(this.checked)" style="width:16px; height:16px; accent-color:var(--green); cursor:pointer;">
+            <span>Activar salidas parciales (múltiples ventas)</span>
+          </label>
+
+          <div id="partials-builder" style="display:none; margin-top:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:11px; text-transform:uppercase; color:var(--text-secondary); font-weight:700;">Desglose de Ventas</span>
+              <span id="partials-shares-counter" style="font-size:11px; font-family:var(--mono); color:var(--text-muted);">0 / 0 acc</span>
+            </div>
+            <div id="partials-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:8px;"></div>
+            <button type="button" class="btn btn-ghost" onclick="addPartialRow()" style="width:100%; font-size:12px; min-height:30px; padding:4px 8px;">+ Añadir Salida Parcial</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Precio de Salida ($)</label>
+          <input type="number" inputmode="decimal" class="form-input" id="f-exit" step="0.01" oninput="autoCalcularPnL()">
+        </div>
+        <div class="form-group">
           <label class="form-label">P&L Final Realizado ($)</label>
           <input type="number" inputmode="decimal" class="form-input" id="f-pnl" step="0.01">
         </div>
         <div class="form-group"></div>
-
-        <div class="form-group">
-          <label class="form-label">Precio de Entrada</label>
-          <input type="number" inputmode="decimal" class="form-input" id="f-entry" step="0.01" oninput="autoCalcularPnL()">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Stop Loss Inicial</label>
-          <input type="number" inputmode="decimal" class="form-input" id="f-stop" step="0.01">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Precio de Salida</label>
-          <input type="number" inputmode="decimal" class="form-input" id="f-exit" step="0.01" oninput="autoCalcularPnL()">
-        </div>
 
         <div class="form-group full">
           <label class="form-label">Notas (Gestión y emociones)</label>
@@ -778,6 +809,102 @@
   </div>
 </div>
 
+<!-- ─── MODAL 2: FICHA DE DETALLE Y CONSULTA DE TARGETS ─── -->
+<div class="modal-overlay" id="detailModal" onclick="closeDetailIfOverlay(event)">
+  <div class="modal" style="max-width: 580px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="dt-status-badge" class="badge" style="font-size:11px;">⚪ CERRADA</span>
+        <h3 style="font-size:16px; margin:0;" id="dt-title">DETALLE TRADE</h3>
+      </div>
+      <button class="action-btn" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      
+      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-bottom:1rem;">
+        <div style="background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle);">
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Fecha</div>
+          <div id="dt-date" class="cell-mono" style="font-size:13px; font-weight:600; color:var(--text-primary); margin-top:2px;">—</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle);">
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Patrón / Setup</div>
+          <div id="dt-setup" class="cell-mono" style="font-size:13px; font-weight:600; color:var(--blue); margin-top:2px;">—</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle);">
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Títulos / Acciones</div>
+          <div id="dt-shares" class="cell-mono" style="font-size:13px; font-weight:600; color:var(--text-primary); margin-top:2px;">—</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle);">
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Capital Invertido</div>
+          <div id="dt-invested" class="cell-mono" style="font-size:13px; font-weight:600; color:var(--text-primary); margin-top:2px;">—</div>
+        </div>
+      </div>
+
+      <!-- PARÁMETROS CLAVE: Entrada, Stop Loss, % Stop (SIN Distancia 1R) -->
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-secondary); margin-bottom:6px;">
+        Parámetros Clave
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-bottom:1rem;">
+        <div style="background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle); text-align:center;">
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Entrada</div>
+          <div id="dt-entry" class="cell-mono" style="font-size:15px; font-weight:700; color:var(--text-primary); margin-top:2px;">—</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle); text-align:center;">
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Stop Loss</div>
+          <div id="dt-stop" class="cell-mono" style="font-size:15px; font-weight:700; color:var(--red); margin-top:2px;">—</div>
+        </div>
+        <div style="background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle); text-align:center;">
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">% Stop Loss</div>
+          <div id="dt-stop-pct" class="cell-mono" style="font-size:15px; font-weight:700; color:var(--text-primary); margin-top:2px;">—</div>
+        </div>
+      </div>
+
+      <!-- OBJETIVOS EN R -->
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-secondary); margin-bottom:6px;">
+        🎯 Objetivos en R (Targets)
+      </div>
+      <div class="calc-targets-grid" style="margin-top:0; margin-bottom:1rem;">
+        <div class="calc-target-card">
+          <div class="calc-target-label">+1R</div>
+          <div class="calc-target-val" id="dt-target-1r" style="font-size:17px;">—</div>
+        </div>
+        <div class="calc-target-card">
+          <div class="calc-target-label">+2R</div>
+          <div class="calc-target-val" id="dt-target-2r" style="font-size:17px;">—</div>
+        </div>
+        <div class="calc-target-card">
+          <div class="calc-target-label">+3R</div>
+          <div class="calc-target-val" id="dt-target-3r" style="font-size:17px;">—</div>
+        </div>
+      </div>
+
+      <!-- RESULTADO / SALIDA -->
+      <div id="dt-exit-box" style="background:var(--bg-secondary); padding:10px 12px; border-radius:8px; border:1px solid var(--border-subtle); margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Salida / Resultado</div>
+          <div id="dt-exit-info" class="cell-mono" style="font-size:13px; font-weight:600; margin-top:2px;">—</div>
+        </div>
+        <div id="dt-pnl-info" class="cell-mono" style="font-size:18px; font-weight:800;">—</div>
+      </div>
+
+      <!-- NOTAS Y FOTO -->
+      <div style="margin-bottom:0.75rem;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-secondary); margin-bottom:4px;">Notas</div>
+        <div id="dt-notes" style="font-size:13px; background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle); white-space:pre-wrap; color:var(--text-primary); min-height:48px;">—</div>
+      </div>
+
+      <div id="dt-image-container" style="display:none; margin-top:10px;">
+        <button type="button" class="btn btn-ghost" id="dt-view-image-btn" style="width:100%; font-size:12px;">🖼️ Ver Gráfico Adjunto</button>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn btn-ghost" onclick="closeDetailModal()">Cerrar</button>
+      <button class="btn btn-primary" id="dt-edit-btn">✏️ Editar Operación</button>
+    </div>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕ Cerrar</button>
   <img id="lightboxImg" src="" alt="">
@@ -788,7 +915,7 @@ function fmt(num) {
   return parseFloat(num).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function fmtPrice(num) {
-  if (!num) return '—';
+  if (num === null || num === undefined || isNaN(num) || num === '') return '—';
   return parseFloat(num).toLocaleString('es-ES', { maximumFractionDigits: 5 });
 }
 
@@ -856,25 +983,8 @@ function onTickerInput(val) {
   }
 }
 
-/* ─── ACTUALIZACIÓN EN VIVO TASA EUR/USD ─── */
-let currentFxRate = 1.08;
-
-async function actualizarTasaFxEnVivo() {
-  try {
-    const res = await fetch('https://open.er-api.com/v6/latest/EUR');
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.rates && data.rates.USD) {
-        currentFxRate = parseFloat(data.rates.USD);
-        const eur = parseFloat(document.getElementById('c-cap-eur').value) || 0;
-        document.getElementById('c-cap-usd').value = Math.round(eur * currentFxRate);
-        recalcPositionSize();
-      }
-    }
-  } catch (e) {
-    console.warn('Usando ratio EUR/USD por defecto:', currentFxRate);
-  }
-}
+/* ─── TASA EUR/USD ESTÁTICA / MANUAL (SIN PETICIONES EXTERNAS) ─── */
+let currentFxRate = 1.10;
 
 /* ─── ESTADO LOCAL-FIRST ─── */
 let userProfile = {
@@ -901,7 +1011,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
   cargarBaseTickersCompleta();
   cargarDatosLocales();
-  actualizarTasaFxEnVivo();
 });
 
 function cargarDatosLocales() {
@@ -1150,6 +1259,199 @@ function pasarCalculoAHistorial() {
   if (shares && shares > 0) document.getElementById('f-shares').value = shares;
 }
 
+/* ─── MODIFICACIÓN 1: SALIDAS PARCIALES EN MODAL REGISTRO ─── */
+function togglePartialsSection(enabled) {
+  document.getElementById('partials-builder').style.display = enabled ? 'block' : 'none';
+  const exitInput = document.getElementById('f-exit');
+  if (enabled) {
+    exitInput.readOnly = true;
+    exitInput.style.opacity = '0.85';
+    if (document.querySelectorAll('.partial-row').length === 0) {
+      addPartialRow();
+    }
+    recalcPartials();
+  } else {
+    exitInput.readOnly = false;
+    exitInput.style.opacity = '1';
+    autoCalcularPnL();
+  }
+}
+
+function addPartialRow(defShares = '', defPrice = '') {
+  const container = document.getElementById('partials-list');
+  const div = document.createElement('div');
+  div.className = 'partial-row';
+  div.style.display = 'flex';
+  div.style.gap = '6px';
+  div.style.alignItems = 'center';
+  div.innerHTML = `
+    <input type="number" inputmode="decimal" class="calc-input partial-shares" placeholder="Acciones" value="${defShares}" step="any" oninput="recalcPartials()" style="flex:1;">
+    <input type="number" inputmode="decimal" class="calc-input partial-price" placeholder="Precio ($)" value="${defPrice}" step="0.01" oninput="recalcPartials()" style="flex:1;">
+    <button type="button" class="action-btn" onclick="this.parentElement.remove(); recalcPartials();" style="color:var(--red);">✕</button>
+  `;
+  container.appendChild(div);
+  recalcPartials();
+}
+
+function recalcPartials() {
+  const isPartials = document.getElementById('f-has-partials').checked;
+  if (!isPartials) return;
+
+  const totalShares = parseFloat(document.getElementById('f-shares').value) || 0;
+  const shareInputs = document.querySelectorAll('.partial-shares');
+  const priceInputs = document.querySelectorAll('.partial-price');
+  
+  let accumulatedShares = 0;
+  let accumulatedAmount = 0;
+
+  shareInputs.forEach((inp, idx) => {
+    const s = parseFloat(inp.value) || 0;
+    const p = parseFloat(priceInputs[idx].value) || 0;
+    accumulatedShares += s;
+    accumulatedAmount += (s * p);
+  });
+
+  const counter = document.getElementById('partials-shares-counter');
+  counter.textContent = `${accumulatedShares} / ${totalShares} acc`;
+  if (totalShares > 0 && accumulatedShares > totalShares) {
+    counter.style.color = 'var(--red)';
+  } else if (totalShares > 0 && accumulatedShares === totalShares) {
+    counter.style.color = 'var(--green-light)';
+  } else {
+    counter.style.color = 'var(--text-muted)';
+  }
+
+  if (accumulatedShares > 0) {
+    const avgExit = accumulatedAmount / accumulatedShares;
+    document.getElementById('f-exit').value = avgExit.toFixed(2);
+  } else {
+    document.getElementById('f-exit').value = '';
+  }
+
+  autoCalcularPnL();
+}
+
+function autoCalcularPnL() {
+  const dir = document.getElementById('f-direction').value;
+  const entry = parseFloat(document.getElementById('f-entry').value);
+  const exit = parseFloat(document.getElementById('f-exit').value);
+  const shares = parseFloat(document.getElementById('f-shares').value);
+
+  if (isNaN(entry) || isNaN(exit) || isNaN(shares) || shares <= 0) return;
+
+  const pnl = dir === 'LONG' ? (exit - entry) * shares : (entry - exit) * shares;
+  document.getElementById('f-pnl').value = pnl.toFixed(2);
+}
+
+/* ─── MODIFICACIÓN 2: FICHA DE DETALLE DEL TRADE ─── */
+function openTradeDetail(id) {
+  const t = computedTrades.find(tr => String(tr.id) === String(id));
+  if (!t) return;
+
+  const isClosed = (t.exit !== '' && t.exit !== null && !isNaN(parseFloat(t.exit))) || 
+                   (t.pnl !== '' && t.pnl !== null && !isNaN(parseFloat(t.pnl)));
+
+  const statusBadge = document.getElementById('dt-status-badge');
+  if (isClosed) {
+    statusBadge.textContent = '⚪ CERRADA';
+    statusBadge.className = 'badge';
+    statusBadge.style.background = 'var(--border)';
+    statusBadge.style.color = 'var(--text-secondary)';
+  } else {
+    statusBadge.textContent = '🟢 ABIERTA';
+    statusBadge.className = 'badge';
+    statusBadge.style.background = 'var(--green-dim)';
+    statusBadge.style.color = 'var(--green-light)';
+  }
+
+  document.getElementById('dt-title').textContent = `${t.symbol} — ${t.direction}`;
+  document.getElementById('dt-date').textContent = formatDate(t.date);
+  document.getElementById('dt-setup').textContent = t.setup || '—';
+  
+  const shares = parseFloat(t.shares) || 0;
+  const entry = parseFloat(t.entry) || 0;
+  const stop = parseFloat(t.stop) || 0;
+  const exit = parseFloat(t.exit) || 0;
+  const pnl = (t.pnl !== '' && t.pnl !== null) ? parseFloat(t.pnl) : null;
+
+  document.getElementById('dt-shares').textContent = shares > 0 ? shares.toLocaleString('es-ES') : '—';
+  document.getElementById('dt-invested').textContent = (shares > 0 && entry > 0) ? `$${fmt(shares * entry)}` : '—';
+
+  document.getElementById('dt-entry').textContent = entry > 0 ? `$${fmtPrice(entry)}` : '—';
+  document.getElementById('dt-stop').textContent = stop > 0 ? `$${fmtPrice(stop)}` : '—';
+
+  // % de Stop
+  let stopPctText = '—';
+  let riskPerShare = 0;
+  if (entry > 0 && stop > 0) {
+    riskPerShare = Math.abs(entry - stop);
+    const stopPct = (riskPerShare / entry) * 100;
+    stopPctText = `${fmt(stopPct)}%`;
+  }
+  document.getElementById('dt-stop-pct').textContent = stopPctText;
+
+  // Cálculo Targets en R (+1R, +2R, +3R) sin tarjeta de Distancia 1R
+  if (entry > 0 && riskPerShare > 0) {
+    if (t.direction === 'LONG') {
+      document.getElementById('dt-target-1r').textContent = `$${fmtPrice(entry + (1 * riskPerShare))}`;
+      document.getElementById('dt-target-2r').textContent = `$${fmtPrice(entry + (2 * riskPerShare))}`;
+      document.getElementById('dt-target-3r').textContent = `$${fmtPrice(entry + (3 * riskPerShare))}`;
+    } else {
+      document.getElementById('dt-target-1r').textContent = `$${fmtPrice(entry - (1 * riskPerShare))}`;
+      document.getElementById('dt-target-2r').textContent = `$${fmtPrice(entry - (2 * riskPerShare))}`;
+      document.getElementById('dt-target-3r').textContent = `$${fmtPrice(entry - (3 * riskPerShare))}`;
+    }
+  } else {
+    document.getElementById('dt-target-1r').textContent = '—';
+    document.getElementById('dt-target-2r').textContent = '—';
+    document.getElementById('dt-target-3r').textContent = '—';
+  }
+
+  // Cuadro de Salida y P&L
+  const exitBox = document.getElementById('dt-exit-box');
+  if (isClosed) {
+    exitBox.style.display = 'flex';
+    let rText = '';
+    if (entry > 0 && stop > 0 && exit > 0 && riskPerShare > 0) {
+      const reward = t.direction === 'LONG' ? (exit - entry) : (entry - exit);
+      const rValue = reward / riskPerShare;
+      rText = ` (${rValue >= 0 ? '+' : ''}${fmt(rValue)} R)`;
+    }
+    document.getElementById('dt-exit-info').textContent = exit > 0 ? `$${fmtPrice(exit)}${rText}` : 'Cerrada';
+    
+    if (pnl !== null) {
+      const pnlPrefix = pnl >= 0 ? '+' : '-';
+      document.getElementById('dt-pnl-info').textContent = `${pnlPrefix}$${fmt(Math.abs(pnl))}`;
+      document.getElementById('dt-pnl-info').style.color = pnl >= 0 ? 'var(--green-light)' : 'var(--red)';
+    } else {
+      document.getElementById('dt-pnl-info').textContent = '—';
+      document.getElementById('dt-pnl-info').style.color = 'var(--text-primary)';
+    }
+  } else {
+    exitBox.style.display = 'none';
+  }
+
+  document.getElementById('dt-notes').textContent = t.notes || 'Sin notas registradas.';
+
+  const imgContainer = document.getElementById('dt-image-container');
+  if (t.image) {
+    imgContainer.style.display = 'block';
+    document.getElementById('dt-view-image-btn').onclick = () => openLightbox(t.id);
+  } else {
+    imgContainer.style.display = 'none';
+  }
+
+  document.getElementById('dt-edit-btn').onclick = () => {
+    closeDetailModal();
+    openEditModal(t.id);
+  };
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
+function closeDetailIfOverlay(e) { if (e.target.id === 'detailModal') closeDetailModal(); }
+
 /* ─── HISTORIAL EN LOCALSTORAGE ─── */
 function refreshApp() {
   const baseCap = userProfile.accounts[0] ? userProfile.accounts[0].eur : 10000;
@@ -1175,18 +1477,6 @@ function updateSetupOptions() {
   const used = trades.map(t => t.setup).filter(s => s && s.trim() !== "");
   const uniqueSetups = [...new Set([...defaults, ...used])].sort();
   datalist.innerHTML = uniqueSetups.map(s => `<option value="${s}">`).join('');
-}
-
-function autoCalcularPnL() {
-  const dir = document.getElementById('f-direction').value;
-  const entry = parseFloat(document.getElementById('f-entry').value);
-  const exit = parseFloat(document.getElementById('f-exit').value);
-  const shares = parseFloat(document.getElementById('f-shares').value);
-
-  if (isNaN(entry) || isNaN(exit) || isNaN(shares) || shares <= 0) return;
-
-  const pnl = dir === 'LONG' ? (exit - entry) * shares : (entry - exit) * shares;
-  document.getElementById('f-pnl').value = pnl.toFixed(2);
 }
 
 function renderTable() {
@@ -1229,7 +1519,7 @@ function renderTable() {
 
     return `<tr>
       <td class="cell-mono">${formatDate(t.date)}</td>
-      <td class="cell-symbol">${t.symbol}</td>
+      <td class="cell-symbol" onclick="openTradeDetail('${t.id}')" title="Ver ficha técnica">${t.symbol}</td>
       <td><span class="badge ${badgeCls}">${t.direction}</span></td>
       <td><span class="tag-pill">${t.setup || '—'}</span></td>
       <td class="cell-mono">${fmtPrice(t.entry)}</td>
@@ -1239,6 +1529,7 @@ function renderTable() {
       <td class="cell-mono" style="color: var(--${pnl >= 0 ? 'green-light' : 'red'})">${pnlText}</td>
       <td>${chartBtn}</td>
       <td>
+        <button class="action-btn" onclick="openTradeDetail('${t.id}')" title="Ficha Técnica">ℹ️</button>
         <button class="action-btn" onclick="openEditModal('${t.id}')" title="Editar">✏️</button>
         <button class="action-btn" onclick="deleteTrade('${t.id}')" title="Borrar">🗑</button>
       </td>
@@ -1394,6 +1685,7 @@ function closeLightbox() { document.getElementById('lightbox').classList.remove(
 function openAddModal() {
   editingId = null;
   currentImage = null;
+  document.getElementById('modalTradeTitle').textContent = 'Registrar Operación';
   document.getElementById('f-symbol').value = '';
   document.getElementById('f-setup').value = '';
   document.getElementById('f-shares').value = '';
@@ -1402,6 +1694,10 @@ function openAddModal() {
   document.getElementById('f-stop').value = '';
   document.getElementById('f-exit').value = '';
   document.getElementById('f-notes').value = '';
+  document.getElementById('f-has-partials').checked = false;
+  document.getElementById('partials-list').innerHTML = '';
+  togglePartialsSection(false);
+
   document.getElementById('uploadPreview').style.display = 'none';
   document.getElementById('uploadText').style.display = 'block';
   document.getElementById('addModal').classList.add('open');
@@ -1415,6 +1711,7 @@ function openEditModal(id) {
   if (!t) return;
   editingId = id;
   currentImage = t.image || null;
+  document.getElementById('modalTradeTitle').textContent = `Editar Operación — ${t.symbol}`;
   
   document.getElementById('f-date').value = t.date;
   document.getElementById('f-symbol').value = t.symbol;
@@ -1426,6 +1723,15 @@ function openEditModal(id) {
   document.getElementById('f-stop').value = t.stop || '';
   document.getElementById('f-exit').value = t.exit || '';
   document.getElementById('f-notes').value = t.notes || '';
+
+  const hasPartials = Array.isArray(t.partials) && t.partials.length > 0;
+  document.getElementById('f-has-partials').checked = hasPartials;
+  document.getElementById('partials-list').innerHTML = '';
+  
+  if (hasPartials) {
+    t.partials.forEach(p => addPartialRow(p.shares, p.price));
+  }
+  togglePartialsSection(hasPartials);
 
   if (currentImage) {
     document.getElementById('uploadPreview').src = currentImage;
@@ -1447,6 +1753,31 @@ function saveTrade() {
   const stopVal = document.getElementById('f-stop').value;
   const exitVal = document.getElementById('f-exit').value;
   const sharesVal = document.getElementById('f-shares').value;
+  let notesVal = document.getElementById('f-notes').value.trim();
+
+  const isPartials = document.getElementById('f-has-partials').checked;
+  const partialRecords = [];
+  
+  if (isPartials) {
+    const sInputs = document.querySelectorAll('.partial-shares');
+    const pInputs = document.querySelectorAll('.partial-price');
+    let summaryText = '\n[Salidas Parciales]:';
+    let count = 0;
+
+    sInputs.forEach((inp, idx) => {
+      const s = parseFloat(inp.value) || 0;
+      const p = parseFloat(pInputs[idx].value) || 0;
+      if (s > 0 && p > 0) {
+        partialRecords.push({ shares: s, price: p });
+        count++;
+        summaryText += `\n• Venta ${count}: ${s} acc a $${fmtPrice(p)}`;
+      }
+    });
+
+    if (count > 0 && !notesVal.includes('[Salidas Parciales]:')) {
+      notesVal = notesVal ? `${notesVal}\n${summaryText}` : summaryText.trim();
+    }
+  }
 
   const data = {
     date: document.getElementById('f-date').value,
@@ -1458,7 +1789,8 @@ function saveTrade() {
     entry: entryVal !== '' ? parseFloat(entryVal) : null,
     stop: stopVal !== '' ? parseFloat(stopVal) : null,
     exit: exitVal !== '' ? parseFloat(exitVal) : null,
-    notes: document.getElementById('f-notes').value,
+    notes: notesVal,
+    partials: partialRecords,
     image: currentImage
   };
 
