@@ -458,7 +458,7 @@
         </div>
 
         <div style="margin-top:1rem;">
-          <button class="btn btn-primary" onclick="pasarCalculoAHistorial()" style="width:100%;">
+          <button class="btn btn-primary" onclick="iniciarPasoAHistorial()" style="width:100%;">
             📥 Pasar a Historial
           </button>
         </div>
@@ -473,7 +473,7 @@
       <div style="display:flex; align-items:center; gap: 10px; flex:1;">
         <h2 style="font-size: 15px; font-weight: 600;">Operaciones</h2>
         <div class="search-box">
-          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 14z"/></svg>
           <input type="text" id="tickerSearchInput" class="search-input" placeholder="Buscar ticker..." oninput="renderTable()" style="text-transform:uppercase;">
         </div>
       </div>
@@ -591,6 +591,33 @@
     </div>
   </footer>
 
+</div>
+
+<!-- ─── MODAL SELECCIÓN DE TRASPASO AL HISTORIAL (SUBCUENTAS) ─── -->
+<div class="modal-overlay" id="transferScopeModal" onclick="closeTransferModalIfOverlay(event)">
+  <div class="modal" style="max-width: 440px;">
+    <div class="modal-header">
+      <h3 style="font-size:15px;">Pasar Operación a Historial</h3>
+      <button class="action-btn" onclick="closeTransferScopeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1rem;">
+        Tienes varias subcuentas activas. ¿Qué volumen de la operación deseas registrar en tu historial?
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button type="button" class="btn btn-primary" onclick="ejecutarPasoAHistorial('USER')" style="display:flex; flex-direction:column; align-items:flex-start; text-align:left; padding:12px 14px; gap:2px; height:auto;">
+          <div style="font-weight:700; font-size:13px;">👤 Solo mi posición (<span id="btn-scope-user-shares">0</span> acciones)</div>
+          <div style="font-size:11px; opacity:0.85; font-weight:400;">Registra únicamente las acciones asignadas a tu cuenta personal.</div>
+        </button>
+
+        <button type="button" class="btn btn-ghost" onclick="ejecutarPasoAHistorial('GLOBAL')" style="display:flex; flex-direction:column; align-items:flex-start; text-align:left; padding:12px 14px; gap:2px; height:auto; border:1px solid var(--border);">
+          <div style="font-weight:700; font-size:13px;">👥 Operación conjunta total (<span id="btn-scope-global-shares">0</span> acciones)</div>
+          <div style="font-size:11px; color:var(--text-muted); font-weight:400;">Registra la compra global sumada e incluye el desglose de subcuentas en notas.</div>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ─── MODAL ONBOARDING WIZARD ─── -->
@@ -731,7 +758,7 @@
 
         <div class="form-group">
           <label class="form-label">Símbolo (Ej: META, AAPL)</label>
-          <input type="text" class="form-input" id="f-symbol" style="text-transform:uppercase;">
+          <input type="text" id="f-symbol" class="form-input" style="text-transform:uppercase;">
         </div>
 
         <div class="form-group">
@@ -893,7 +920,7 @@
         <div id="dt-notes" style="font-size:13px; background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle); white-space:pre-wrap; color:var(--text-primary); min-height:48px;">—</div>
       </div>
 
-      <!-- BOTÓN EXACTO SOLICITADO DEBAJO DE LAS NOTAS -->
+      <!-- BOTÓN EXACTO DEBAJO DE LAS NOTAS -->
       <div id="dt-image-container" style="display:none; margin-top:10px;">
         <button type="button" class="btn btn-ghost" id="dt-view-image-btn" style="width:100%; font-size:13px; font-weight:600; justify-content:center; padding:11px 16px; border-radius:10px; border:1px solid var(--border);">
           🖼️ Ver Gráfico Registrado en Pantalla Completa
@@ -998,6 +1025,7 @@ let userProfile = {
 
 let currentOpType = 'TRADE';
 let computedUserShares = 0;
+let computedTotalShares = 0;
 let trades = [];
 let computedTrades = [];
 let editingId = null;
@@ -1192,6 +1220,8 @@ function recalcPositionSize() {
     document.getElementById('res-target-3r').textContent = `—`;
   }
 
+  computedTotalShares = totalShares;
+
   if (userProfile.hasSubaccounts && userProfile.accounts.length > 1) {
     const totalBaseEur = userProfile.accounts.reduce((acc, a) => acc + (parseFloat(a.eur) || 0), 0);
     userProfile.accounts.forEach((acc, idx) => {
@@ -1247,11 +1277,44 @@ function recalcPositionSize() {
   }
 }
 
-function pasarCalculoAHistorial() {
+/* ─── FLUJO CONTEXTUAL DE PASO A HISTORIAL (PROPIA VS TODAS) ─── */
+function iniciarPasoAHistorial() {
+  if (userProfile.hasSubaccounts && userProfile.accounts.length > 1) {
+    document.getElementById('btn-scope-user-shares').textContent = computedUserShares;
+    document.getElementById('btn-scope-global-shares').textContent = computedTotalShares;
+    document.getElementById('transferScopeModal').classList.add('open');
+  } else {
+    ejecutarPasoAHistorial('USER');
+  }
+}
+
+function closeTransferScopeModal() {
+  document.getElementById('transferScopeModal').classList.remove('open');
+}
+
+function closeTransferModalIfOverlay(e) {
+  if (e.target.id === 'transferScopeModal') closeTransferScopeModal();
+}
+
+function ejecutarPasoAHistorial(scope) {
+  closeTransferScopeModal();
+
   const ticker = (document.getElementById('c-ticker').value || '').toUpperCase().trim();
   const entry = document.getElementById('c-entry').value;
   const stop = document.getElementById('c-stop-price').value;
-  const shares = computedUserShares;
+  
+  let targetShares = (scope === 'GLOBAL') ? computedTotalShares : computedUserShares;
+  let breakdownNotes = '';
+
+  if (scope === 'GLOBAL' && userProfile.accounts.length > 1) {
+    const totalBaseEur = userProfile.accounts.reduce((acc, a) => acc + (parseFloat(a.eur) || 0), 0);
+    breakdownNotes = '[Reparto Conjunto]:';
+    userProfile.accounts.forEach(acc => {
+      const weight = totalBaseEur > 0 ? (acc.eur / totalBaseEur) : 0;
+      const sh = Math.floor(computedTotalShares * weight);
+      breakdownNotes += `\n• ${acc.name}: ${sh} acc`;
+    });
+  }
 
   switchTab('journal');
   openAddModal();
@@ -1259,7 +1322,8 @@ function pasarCalculoAHistorial() {
   if (ticker) document.getElementById('f-symbol').value = ticker;
   if (entry) document.getElementById('f-entry').value = entry;
   if (stop) document.getElementById('f-stop').value = stop;
-  if (shares && shares > 0) document.getElementById('f-shares').value = shares;
+  if (targetShares && targetShares > 0) document.getElementById('f-shares').value = targetShares;
+  if (breakdownNotes) document.getElementById('f-notes').value = breakdownNotes;
 }
 
 /* ─── SALIDAS PARCIALES EN MODAL REGISTRO ─── */
@@ -1383,7 +1447,6 @@ function openTradeDetail(id) {
   document.getElementById('dt-entry').textContent = entry > 0 ? `$${fmtPrice(entry)}` : '—';
   document.getElementById('dt-stop').textContent = stop > 0 ? `$${fmtPrice(stop)}` : '—';
 
-  // % de Stop
   let stopPctText = '—';
   let riskPerShare = 0;
   if (entry > 0 && stop > 0) {
@@ -1393,7 +1456,6 @@ function openTradeDetail(id) {
   }
   document.getElementById('dt-stop-pct').textContent = stopPctText;
 
-  // Cálculo Targets en R (+1R, +2R, +3R)
   if (entry > 0 && riskPerShare > 0) {
     if (t.direction === 'LONG') {
       document.getElementById('dt-target-1r').textContent = `$${fmtPrice(entry + (1 * riskPerShare))}`;
@@ -1410,7 +1472,6 @@ function openTradeDetail(id) {
     document.getElementById('dt-target-3r').textContent = '—';
   }
 
-  // Cuadro de Salida y P&L
   const exitBox = document.getElementById('dt-exit-box');
   if (isClosed) {
     exitBox.style.display = 'flex';
@@ -1436,7 +1497,6 @@ function openTradeDetail(id) {
 
   document.getElementById('dt-notes').textContent = t.notes || 'Sin notas registradas.';
 
-  // BOTÓN DEL GRÁFICO REGISTRADO DEBAJO DE LAS NOTAS
   const imgContainer = document.getElementById('dt-image-container');
   if (t.image) {
     imgContainer.style.display = 'block';
