@@ -248,7 +248,7 @@
     .action-btn:hover { opacity: 1; }
 
     /* ─── MODALES ─── */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 1rem; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); z-index: 200; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 1rem; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .modal-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-card); z-index: 10; }
@@ -264,6 +264,24 @@
     .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem; text-align: center; cursor: pointer; background: var(--bg-secondary); position: relative; }
     .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
     .upload-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 6px; display: none; margin-top: 8px; }
+
+    /* ─── BANNER DE DENEGACIÓN COMUNIDAD ─── */
+    .auth-denied-banner {
+      display: none;
+      margin-top: 1rem;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: var(--red-dim);
+      border: 1px solid rgba(255, 71, 87, 0.35);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .auth-denied-banner a {
+      color: var(--green-light);
+      font-weight: 700;
+      text-decoration: underline;
+    }
 
     /* ─── ONBOARDING WIZARD ─── */
     .wizard-step { display: none; animation: fadeIn 0.25s ease-out; }
@@ -616,6 +634,38 @@
 
 </div>
 
+<!-- ─── MODAL DE VALIDACIÓN DE COMUNIDAD (CADA 30 DÍAS) ─── -->
+<div class="modal-overlay" id="discordAuthModal" style="z-index: 250;">
+  <div class="modal" style="max-width: 460px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <img src="./logo.png" alt="TLR" style="width:26px; height:26px; border-radius:5px;" onerror="this.style.display='none'">
+        <h3 style="font-size:15px;">Acceso Exclusivo Comunidad</h3>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1rem;">
+        Introduce tu <strong>nombre de usuario de Discord</strong> para verificar que formas parte de la comunidad de The Long Run.
+      </p>
+
+      <div class="calc-group" style="margin-bottom:0.5rem;">
+        <label class="calc-label">Usuario de Discord</label>
+        <input type="text" id="auth-discord-input" class="calc-input" placeholder="Ej: usuario_discord" onkeydown="if(event.key==='Enter') verificarAccesoDiscord()">
+      </div>
+
+      <!-- BANNER DE AVISO SI NO ESTÁ EN LA COMUNIDAD -->
+      <div id="auth-denied-banner" class="auth-denied-banner">
+        Lo sentimos, esta herramienta es solo para usuarios de la comunidad. Para acceder, puedes hacerlo a través de <a href="https://www.thelongruninversiones.com" target="_blank" rel="noopener noreferrer">www.thelongruninversiones.com</a>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="auth-submit-btn" onclick="verificarAccesoDiscord()" style="width:100%;">
+        🔐 Validar Acceso
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ─── MODAL ONBOARDING WIZARD ─── -->
 <div class="modal-overlay" id="wizardModal">
   <div class="modal" style="max-width: 520px;">
@@ -707,6 +757,11 @@
       <button class="action-btn" onclick="closeSettingsModal()">✕</button>
     </div>
     <div class="modal-body">
+      <div style="background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 12px; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; color:var(--text-secondary);">Usuario Discord verificado: <strong id="set-discord-user" style="color:var(--green-light); font-family:var(--mono);">—</strong></span>
+        <button type="button" onclick="cerrarSesionDiscord()" style="background:transparent; border:none; color:var(--text-muted); font-size:11px; cursor:pointer; text-decoration:underline;">Cambiar</button>
+      </div>
+
       <div class="calc-group" style="margin-bottom:1rem;">
         <label class="calc-label">Nombre / Alias Principal</label>
         <input type="text" id="set-name" class="calc-input">
@@ -966,6 +1021,10 @@
 </div>
 
 <script>
+/* ─── CONFIGURACIÓN CLOUDFLARE WORKER (VALIDACIÓN 30 DÍAS) ─── */
+const AUTH_WORKER_URL = "https://auth-diario-tlr.officialthelongrun.workers.dev";
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
 function fmt(num) {
   return parseFloat(num).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
@@ -1085,8 +1144,89 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
   cargarBaseTickersCompleta();
-  cargarDatosLocales();
+  comprobarSesionComunidad();
 });
+
+/* ─── FLUJO DE VALIDACIÓN CADA 30 DÍAS ─── */
+function comprobarSesionComunidad() {
+  const savedUser = localStorage.getItem('tlr_discord_user');
+  const savedTime = parseInt(localStorage.getItem('tlr_auth_timestamp') || '0', 10);
+  const now = Date.now();
+
+  if (!savedUser || !savedTime || (now - savedTime) >= THIRTY_DAYS_MS) {
+    if (savedUser) document.getElementById('auth-discord-input').value = savedUser;
+    document.getElementById('discordAuthModal').classList.add('open');
+  } else {
+    registrarPingSilencioso(savedUser);
+    cargarDatosLocales();
+  }
+}
+
+async function verificarAccesoDiscord() {
+  const input = document.getElementById('auth-discord-input');
+  const btn = document.getElementById('auth-submit-btn');
+  const banner = document.getElementById('auth-denied-banner');
+  const username = (input.value || '').trim();
+
+  if (!username) {
+    alert('Por favor, escribe tu nombre de usuario de Discord.');
+    return;
+  }
+
+  banner.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Verificando en Discord...';
+
+  try {
+    const res = await fetch(AUTH_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username,
+        device: navigator.userAgent,
+        action: 'LOGIN_30D'
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.authorized) {
+      localStorage.setItem('tlr_discord_user', data.username || username);
+      localStorage.setItem('tlr_auth_timestamp', String(Date.now()));
+      document.getElementById('discordAuthModal').classList.remove('open');
+      cargarDatosLocales();
+    } else {
+      banner.style.display = 'block';
+    }
+  } catch (e) {
+    banner.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔐 Validar Acceso';
+  }
+}
+
+function registrarPingSilencioso(username) {
+  if (!AUTH_WORKER_URL || AUTH_WORKER_URL.includes("PEGA_AQUI")) return;
+  fetch(AUTH_WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: username,
+      device: navigator.userAgent,
+      action: 'OPEN_APP'
+    })
+  }).catch(() => {});
+}
+
+function cerrarSesionDiscord() {
+  localStorage.removeItem('tlr_discord_user');
+  localStorage.removeItem('tlr_auth_timestamp');
+  closeSettingsModal();
+  document.getElementById('auth-discord-input').value = '';
+  document.getElementById('auth-denied-banner').style.display = 'none';
+  document.getElementById('discordAuthModal').classList.add('open');
+}
 
 function cargarDatosLocales() {
   const profileSaved = localStorage.getItem('tlr_com_profile');
@@ -2101,6 +2241,7 @@ function finalizarWizard() {
 
 /* ─── MODAL AJUSTES Y GESTIÓN DE SUBCUENTAS ─── */
 function openSettingsModal() {
+  document.getElementById('set-discord-user').textContent = localStorage.getItem('tlr_discord_user') || 'No validado';
   document.getElementById('set-name').value = userProfile.name || '';
   const mainCap = userProfile.accounts[0] ? userProfile.accounts[0].eur : 10000;
   document.getElementById('set-capital').value = mainCap;
