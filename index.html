@@ -133,6 +133,20 @@
     .calc-input:focus, .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--green-light); }
     .calc-suffix { position: absolute; right: 12px; font-size: 11px; color: var(--text-muted); font-family: var(--mono); pointer-events: none; }
 
+    .filter-select {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: var(--text-primary);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+    .filter-select:focus { border-color: var(--green-light); }
+
     .hero-shares-box { background: linear-gradient(145deg, rgba(0, 143, 76, 0.16), var(--bg-secondary)); border: 2px solid var(--green); border-radius: 12px; padding: 1.1rem; text-align: center; margin-bottom: 0.85rem; }
     .hero-shares-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green-light); margin-bottom: 4px; }
     .hero-shares-num { font-family: var(--mono); font-size: 38px; font-weight: 800; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
@@ -199,7 +213,7 @@
     .cal-day.loss { border-color: rgba(255,71,87,0.3); background: var(--red-dim); color: var(--red); }
 
     .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; gap: 12px; flex-wrap: wrap; }
-    .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; flex: 1; max-width: 250px; }
+    .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; flex: 1; max-width: 230px; }
     .search-box svg { width: 14px; height: 14px; fill: var(--text-muted); flex-shrink: 0; }
     .search-input { border: none; padding: 0; font-size: 14px; width: 100%; }
 
@@ -221,9 +235,12 @@
     .cell-symbol { font-family: var(--mono); font-weight: 600; font-size: 13px; color: var(--blue); cursor: pointer; }
     .cell-symbol:hover { text-decoration: underline; }
     
-    .badge { display: inline-flex; padding: 3px 7px; border-radius: 5px; font-family: var(--mono); font-size: 10px; font-weight: 500; }
+    .badge { display: inline-flex; padding: 3px 7px; border-radius: 5px; font-family: var(--mono); font-size: 10px; font-weight: 600; }
     .badge-long { background: var(--green-dim); color: var(--green-light); }
     .badge-short { background: var(--red-dim); color: var(--red); }
+    .badge-trade { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(88, 166, 255, 0.25); }
+    .badge-swing { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(245, 166, 35, 0.3); }
+
     .tag-pill { display: inline-flex; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: var(--mono); background: var(--blue-dim); color: var(--blue); }
     .thumb-btn { width: 34px; height: 26px; border-radius: 5px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .thumb-btn img { width: 100%; height: 100%; object-fit: cover; }
@@ -470,12 +487,17 @@
   <!-- PESTAÑA 1: HISTORIAL -->
   <div id="tab-journal" class="tab-content">
     <div class="section-header">
-      <div style="display:flex; align-items:center; gap: 10px; flex:1;">
+      <div style="display:flex; align-items:center; gap: 10px; flex:1; flex-wrap:wrap;">
         <h2 style="font-size: 15px; font-weight: 600;">Operaciones</h2>
         <div class="search-box">
           <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
           <input type="text" id="tickerSearchInput" class="search-input" placeholder="Buscar ticker..." oninput="renderTable()" style="text-transform:uppercase;">
         </div>
+        <select id="typeFilterSelect" class="filter-select" onchange="renderTable()">
+          <option value="ALL">Todos los tipos</option>
+          <option value="TRADE">Solo TRADE</option>
+          <option value="SWING">Solo SWING</option>
+        </select>
       </div>
       <button class="btn btn-primary" onclick="openAddModal()">+ Nueva Operación</button>
     </div>
@@ -485,6 +507,7 @@
           <tr>
             <th>Fecha</th>
             <th>Activo</th>
+            <th>Tipo</th>
             <th>Dir.</th>
             <th>Patrón / Setup</th>
             <th>Entrada</th>
@@ -654,7 +677,6 @@
           <div id="wiz-subaccounts-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:8px;"></div>
           <button type="button" class="btn btn-ghost" onclick="addWizardSubaccountRow()" style="width:100%; font-size:12px; min-height:34px; margin-bottom:12px;">+ Añadir Subcuenta</button>
 
-          <!-- SELECCIÓN AL ENTRAR POR PRIMERA VEZ -->
           <div style="border-top:1px solid var(--border-subtle); padding-top:10px;">
             <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-bottom:4px;">Al pulsar "Pasar a Historial", pasar por defecto:</div>
             <div class="radio-card-grid">
@@ -702,7 +724,6 @@
         </div>
         <div id="set-subaccounts-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
 
-        <!-- OPCIÓN AL CAMBIAR LOS AJUSTES -->
         <div id="set-transfer-scope-box" style="display:none; background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle);">
           <label class="calc-label" style="margin-bottom:6px; display:block;">Al pulsar "Pasar a Historial", pasar por defecto:</label>
           <select id="set-transfer-scope" class="form-select" style="font-size:13px;">
@@ -737,7 +758,7 @@
   </div>
 </div>
 
-<!-- ─── MODAL REGISTRAR OPERACIÓN ─── -->
+<!-- ─── MODAL REGISTRAR / EDITAR OPERACIÓN (addModal) ─── -->
 <div class="modal-overlay" id="addModal" onclick="closeModalIfOverlay(event)">
   <div class="modal">
     <div class="modal-header">
@@ -757,6 +778,14 @@
         </div>
 
         <div class="form-group">
+          <label class="form-label">Tipo de Operación</label>
+          <select class="form-select" id="f-optype">
+            <option value="TRADE">TRADE</option>
+            <option value="SWING">SWING</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label class="form-label">Dirección</label>
           <select class="form-select" id="f-direction" onchange="autoCalcularPnL()">
             <option value="LONG">Long</option>
@@ -764,7 +793,7 @@
           </select>
         </div>
 
-        <div class="form-group full highlighted-field">
+        <div class="form-group highlighted-field" style="grid-column: span 2;">
           <label class="form-label">Patrón / Setup <span class="req-tag">* Requerido</span></label>
           <input type="text" class="form-input" id="f-setup" list="setup-list" placeholder="Elige o escribe el patrón...">
           <datalist id="setup-list"></datalist>
@@ -831,12 +860,13 @@
   </div>
 </div>
 
-<!-- ─── MODAL 2: FICHA DE DETALLE Y CONSULTA DE TARGETS ─── -->
-<div class="modal-overlay" id="detailModal" onclick="closeDetailIfOverlay(event)">
+<!-- ─── MODAL DE INFORMACIÓN Y CONSULTA DE TARGETS (infoModal) ─── -->
+<div class="modal-overlay" id="infoModal" onclick="closeDetailIfOverlay(event)">
   <div class="modal" style="max-width: 580px;">
     <div class="modal-header">
-      <div style="display:flex; align-items:center; gap:8px;">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
         <span id="dt-status-badge" class="badge" style="font-size:11px;">⚪ CERRADA</span>
+        <span id="info-optype" class="badge badge-trade" style="font-size:11px;">TRADE</span>
         <h3 style="font-size:16px; margin:0;" id="dt-title">DETALLE TRADE</h3>
       </div>
       <button class="action-btn" onclick="closeDetailModal()">✕</button>
@@ -915,7 +945,7 @@
         <div id="dt-notes" style="font-size:13px; background:var(--bg-secondary); padding:10px; border-radius:8px; border:1px solid var(--border-subtle); white-space:pre-wrap; color:var(--text-primary); min-height:48px;">—</div>
       </div>
 
-      <!-- BOTÓN EXACTO DEBAJO DE LAS NOTAS -->
+      <!-- BOTÓN GRÁFICO DEBAJO DE LAS NOTAS -->
       <div id="dt-image-container" style="display:none; margin-top:10px;">
         <button type="button" class="btn btn-ghost" id="dt-view-image-btn" style="width:100%; font-size:13px; font-weight:600; justify-content:center; padding:11px 16px; border-radius:10px; border:1px solid var(--border);">
           🖼️ Ver Gráfico Registrado en Pantalla Completa
@@ -942,6 +972,24 @@ function fmt(num) {
 function fmtPrice(num) {
   if (num === null || num === undefined || isNaN(num) || num === '') return '—';
   return parseFloat(num).toLocaleString('es-ES', { maximumFractionDigits: 5 });
+}
+
+/* ─── HELPERS DE GESTIÓN TIPO DE OPERACIÓN (TRADE vs SWING) EN NOTAS ─── */
+function injectOpTypeIntoNotes(cleanNotes, opType) {
+  const typeTag = `[TIPO: ${(opType || 'TRADE').toUpperCase()}]`;
+  const trimmed = (cleanNotes || '').trim();
+  return trimmed ? `${typeTag}\n${trimmed}` : typeTag;
+}
+
+function getTradeOpType(t) {
+  if (!t || !t.notes) return 'TRADE';
+  const match = String(t.notes).match(/\[TIPO:\s*(TRADE|SWING)\]/i);
+  return match ? match[1].toUpperCase() : 'TRADE';
+}
+
+function getCleanNotes(notes) {
+  if (!notes) return '';
+  return String(notes).replace(/\[TIPO:\s*(TRADE|SWING)\]\s*\n?/gi, '').trim();
 }
 
 /* ─── TEMA CLARO / OSCURO ─── */
@@ -1015,7 +1063,7 @@ let currentFxRate = 1.10;
 let userProfile = {
   name: 'Mi Cuenta',
   hasSubaccounts: false,
-  transferScope: 'USER', // 'USER' (solo su operación) o 'GLOBAL' (todas)
+  transferScope: 'USER',
   accounts: [{ name: 'Mi Cuenta', eur: 10000 }]
 };
 
@@ -1302,6 +1350,7 @@ function pasarCalculoAHistorial() {
   switchTab('journal');
   openAddModal();
 
+  document.getElementById('f-optype').value = currentOpType;
   if (ticker) document.getElementById('f-symbol').value = ticker;
   if (entry) document.getElementById('f-entry').value = entry;
   if (stop) document.getElementById('f-stop').value = stop;
@@ -1393,10 +1442,15 @@ function autoCalcularPnL() {
   document.getElementById('f-pnl').value = pnl.toFixed(2);
 }
 
-/* ─── FICHA DE DETALLE DEL TRADE ─── */
+/* ─── FICHA DE DETALLE DEL TRADE (infoModal) ─── */
 function openTradeDetail(id) {
   const t = computedTrades.find(tr => String(tr.id) === String(id));
   if (!t) return;
+
+  const opType = getTradeOpType(t);
+  const opBadge = document.getElementById('info-optype');
+  opBadge.textContent = opType;
+  opBadge.className = `badge ${opType === 'SWING' ? 'badge-swing' : 'badge-trade'}`;
 
   const isClosed = (t.exit !== '' && t.exit !== null && !isNaN(parseFloat(t.exit))) || 
                    (t.pnl !== '' && t.pnl !== null && !isNaN(parseFloat(t.pnl)));
@@ -1478,7 +1532,8 @@ function openTradeDetail(id) {
     exitBox.style.display = 'none';
   }
 
-  document.getElementById('dt-notes').textContent = t.notes || 'Sin notas registradas.';
+  const cleanNotesText = getCleanNotes(t.notes);
+  document.getElementById('dt-notes').textContent = cleanNotesText || 'Sin notas registradas.';
 
   const imgContainer = document.getElementById('dt-image-container');
   if (t.image) {
@@ -1493,11 +1548,11 @@ function openTradeDetail(id) {
     openEditModal(t.id);
   };
 
-  document.getElementById('detailModal').classList.add('open');
+  document.getElementById('infoModal').classList.add('open');
 }
 
-function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
-function closeDetailIfOverlay(e) { if (e.target.id === 'detailModal') closeDetailModal(); }
+function closeDetailModal() { document.getElementById('infoModal').classList.remove('open'); }
+function closeDetailIfOverlay(e) { if (e.target.id === 'infoModal') closeDetailModal(); }
 
 /* ─── HISTORIAL EN LOCALSTORAGE ─── */
 function refreshApp() {
@@ -1529,18 +1584,25 @@ function updateSetupOptions() {
 function renderTable() {
   const tbody = document.getElementById('tradeTableBody');
   const searchTicker = (document.getElementById('tickerSearchInput')?.value || '').toUpperCase().trim();
+  const filterType = document.getElementById('typeFilterSelect')?.value || 'ALL';
   
   let sorted = [...computedTrades].reverse(); 
   if (searchTicker) {
     sorted = sorted.filter(t => (t.symbol || '').toUpperCase().includes(searchTicker));
   }
+  if (filterType !== 'ALL') {
+    sorted = sorted.filter(t => getTradeOpType(t) === filterType);
+  }
 
   if (!sorted.length) {
-    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 2rem; color:var(--text-muted)">Sin operaciones registradas${searchTicker ? ` para "${searchTicker}"` : ''}.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 2rem; color:var(--text-muted)">Sin operaciones registradas${searchTicker ? ` para "${searchTicker}"` : ''}.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = sorted.map(t => {
+    const opType = getTradeOpType(t);
+    const opBadgeCls = opType === 'SWING' ? 'badge-swing' : 'badge-trade';
+
     const pnl = t.pnl !== '' && t.pnl !== null ? parseFloat(t.pnl) : null;
     const pnlText = pnl !== null ? `${pnl >= 0 ? '+' : '-'}$${fmt(Math.abs(pnl))}` : '—';
     const badgeCls = t.direction === 'LONG' ? 'badge-long' : 'badge-short';
@@ -1567,6 +1629,7 @@ function renderTable() {
     return `<tr>
       <td class="cell-mono">${formatDate(t.date)}</td>
       <td class="cell-symbol" onclick="openTradeDetail('${t.id}')" title="Ver ficha técnica">${t.symbol}</td>
+      <td><span class="badge ${opBadgeCls}">${opType}</span></td>
       <td><span class="badge ${badgeCls}">${t.direction}</span></td>
       <td><span class="tag-pill">${t.setup || '—'}</span></td>
       <td class="cell-mono">${fmtPrice(t.entry)}</td>
@@ -1734,6 +1797,7 @@ function openAddModal() {
   currentImage = null;
   document.getElementById('modalTradeTitle').textContent = 'Registrar Operación';
   document.getElementById('f-symbol').value = '';
+  document.getElementById('f-optype').value = 'TRADE';
   document.getElementById('f-setup').value = '';
   document.getElementById('f-shares').value = '';
   document.getElementById('f-pnl').value = '';
@@ -1762,6 +1826,7 @@ function openEditModal(id) {
   
   document.getElementById('f-date').value = t.date;
   document.getElementById('f-symbol').value = t.symbol;
+  document.getElementById('f-optype').value = getTradeOpType(t);
   document.getElementById('f-direction').value = t.direction;
   document.getElementById('f-setup').value = t.setup || '';
   document.getElementById('f-shares').value = t.shares || '';
@@ -1769,7 +1834,7 @@ function openEditModal(id) {
   document.getElementById('f-entry').value = t.entry || '';
   document.getElementById('f-stop').value = t.stop || '';
   document.getElementById('f-exit').value = t.exit || '';
-  document.getElementById('f-notes').value = t.notes || '';
+  document.getElementById('f-notes').value = getCleanNotes(t.notes);
 
   const hasPartials = Array.isArray(t.partials) && t.partials.length > 0;
   document.getElementById('f-has-partials').checked = hasPartials;
@@ -1800,7 +1865,8 @@ function saveTrade() {
   const stopVal = document.getElementById('f-stop').value;
   const exitVal = document.getElementById('f-exit').value;
   const sharesVal = document.getElementById('f-shares').value;
-  let notesVal = document.getElementById('f-notes').value.trim();
+  const opTypeVal = document.getElementById('f-optype').value;
+  let cleanNotesVal = getCleanNotes(document.getElementById('f-notes').value);
 
   const isPartials = document.getElementById('f-has-partials').checked;
   const partialRecords = [];
@@ -1813,7 +1879,7 @@ function saveTrade() {
 
     sInputs.forEach((inp, idx) => {
       const s = parseFloat(inp.value) || 0;
-      const p = parseFloat(priceInputs[idx].value) || 0;
+      const p = parseFloat(pInputs[idx].value) || 0;
       if (s > 0 && p > 0) {
         partialRecords.push({ shares: s, price: p });
         count++;
@@ -1821,10 +1887,12 @@ function saveTrade() {
       }
     });
 
-    if (count > 0 && !notesVal.includes('[Salidas Parciales]:')) {
-      notesVal = notesVal ? `${notesVal}\n${summaryText}` : summaryText.trim();
+    if (count > 0 && !cleanNotesVal.includes('[Salidas Parciales]:')) {
+      cleanNotesVal = cleanNotesVal ? `${cleanNotesVal}\n${summaryText}` : summaryText.trim();
     }
   }
+
+  const finalNotesWithTag = injectOpTypeIntoNotes(cleanNotesVal, opTypeVal);
 
   const data = {
     date: document.getElementById('f-date').value,
@@ -1836,7 +1904,7 @@ function saveTrade() {
     entry: entryVal !== '' ? parseFloat(entryVal) : null,
     stop: stopVal !== '' ? parseFloat(stopVal) : null,
     exit: exitVal !== '' ? parseFloat(exitVal) : null,
-    notes: notesVal,
+    notes: finalNotesWithTag,
     partials: partialRecords,
     image: currentImage
   };
