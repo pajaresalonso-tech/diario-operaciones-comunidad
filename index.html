@@ -92,6 +92,49 @@
     .icon-btn { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 7px 11px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; }
     .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 
+    /* ─── CONTENEDOR VÍDEO TUTORIAL RESPONSIVE 16:9 ─── */
+    .video-embed-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #000;
+      margin-bottom: 1.15rem;
+    }
+    .video-embed-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* ─── BOTÓN TUTORIAL EN CABECERA DE AJUSTES ─── */
+    .settings-tutorial-btn {
+      background: var(--green-dim);
+      border: 1px solid rgba(0, 143, 76, 0.35);
+      color: var(--green-light);
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--sans);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-right: 14px;
+      transition: all 0.15s;
+    }
+    .settings-tutorial-btn:hover {
+      background: var(--green);
+      color: #fff;
+    }
+
     /* ─── NAVEGACIÓN ─── */
     .container { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 3rem; }
     .tab-nav { display: flex; gap: 8px; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -286,7 +329,7 @@
     /* ─── ONBOARDING WIZARD ─── */
     .wizard-step { display: none; animation: fadeIn 0.25s ease-out; }
     .wizard-step.active { display: block; }
-    .wizard-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.5rem; }
+    .wizard-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.25rem; }
     .wizard-dot { width: 28px; height: 6px; border-radius: 3px; background: var(--border); transition: background 0.2s; }
     .wizard-dot.active { background: var(--green); }
 
@@ -666,9 +709,24 @@
   </div>
 </div>
 
+<!-- ─── MODAL VÍDEO TUTORIAL (DESDE AJUSTES) ─── -->
+<div class="modal-overlay" id="tutorialModal" style="z-index: 260;" onclick="closeTutorialIfOverlay(event)">
+  <div class="modal" style="max-width: 680px;">
+    <div class="modal-header">
+      <h3 style="font-size:15px;">📺 Tutorial — Cómo usar el Diario de Operaciones</h3>
+      <button class="action-btn" onclick="closeTutorialModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="video-embed-wrapper" style="margin-bottom:0;">
+        <iframe id="modal-tutorial-iframe" src="" title="Tutorial Diario de Operaciones" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ─── MODAL ONBOARDING WIZARD ─── -->
 <div class="modal-overlay" id="wizardModal">
-  <div class="modal" style="max-width: 520px;">
+  <div class="modal" style="max-width: 560px;">
     <div class="modal-header">
       <h3 style="font-size:16px;">Configuración de tu Diario</h3>
     </div>
@@ -679,12 +737,16 @@
         <div class="wizard-dot" id="dot-3"></div>
       </div>
 
-      <!-- Paso 1: Nombre y Capital -->
+      <!-- Paso 1: Bienvenida + Vídeo Tutorial Incrustado + Nombre y Capital -->
       <div class="wizard-step active" id="w-step-1">
-        <h4 style="margin-bottom:8px; font-size:15px;">¡Bienvenido a tu herramienta para calcular posiciones y guardar operaciones!</h4>
-        <p style="color:var(--text-secondary); font-size:13px; margin-bottom:1.25rem;">Tus datos son 100% privados y se almacenan únicamente en tu navegador.</p>
+        <h4 style="margin-bottom:6px; font-size:15px;">¡Bienvenido a tu herramienta para calcular posiciones y guardar operaciones!</h4>
+        <p style="color:var(--text-secondary); font-size:13px; margin-bottom:0.9rem;">Mira este breve vídeo tutorial para sacarle todo el partido (tus datos son 100% privados y se guardan solo en tu navegador):</p>
         
-        <div class="calc-group" style="margin-bottom:1rem;">
+        <div class="video-embed-wrapper">
+          <iframe id="wiz-tutorial-iframe" src="" title="Tutorial de bienvenida" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+
+        <div class="calc-group" style="margin-bottom:0.85rem;">
           <label class="calc-label">Tu Nombre o Alias</label>
           <input type="text" id="wiz-name" class="calc-input" placeholder="Ej: Jaime, Javier..." value="">
         </div>
@@ -754,7 +816,10 @@
   <div class="modal" style="max-width: 540px;">
     <div class="modal-header">
       <h3 style="font-size:15px;">Ajustes de Cuenta</h3>
-      <button class="action-btn" onclick="closeSettingsModal()">✕</button>
+      <div style="display:flex; align-items:center;">
+        <button type="button" class="settings-tutorial-btn" onclick="openTutorialModal()">📺 Ver Tutorial</button>
+        <button class="action-btn" onclick="closeSettingsModal()">✕</button>
+      </div>
     </div>
     <div class="modal-body">
       <div style="background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:8px; padding:8px 12px; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
@@ -1021,9 +1086,14 @@
 </div>
 
 <script>
-/* ─── CONFIGURACIÓN CLOUDFLARE WORKER (VALIDACIÓN 30 DÍAS) ─── */
+/* ─── CONFIGURACIÓN CLOUDFLARE WORKER Y VÍDEO TUTORIAL YOUTUBE ─── */
 const AUTH_WORKER_URL = "https://auth-diario-tlr.officialthelongrun.workers.dev";
+const YOUTUBE_TUTORIAL_ID = "PEGA_AQUI_EL_ID_DEL_VIDEO_YOUTUBE";
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+function getYoutubeEmbedUrl() {
+  return `https://www.youtube.com/embed/${YOUTUBE_TUTORIAL_ID}?rel=0&modestbranding=1`;
+}
 
 function fmt(num) {
   return parseFloat(num).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1077,6 +1147,21 @@ function toggleTheme() {
 function updateThemeBtn(isLight) {
   const btn = document.getElementById('themeToggleBtn');
   if (btn) btn.textContent = isLight ? '🌙 Oscuro' : '☀️ Claro';
+}
+
+/* ─── MODAL VÍDEO TUTORIAL DESDE AJUSTES ─── */
+function openTutorialModal() {
+  document.getElementById('modal-tutorial-iframe').src = getYoutubeEmbedUrl();
+  document.getElementById('tutorialModal').classList.add('open');
+}
+
+function closeTutorialModal() {
+  document.getElementById('modal-tutorial-iframe').src = '';
+  document.getElementById('tutorialModal').classList.remove('open');
+}
+
+function closeTutorialIfOverlay(e) {
+  if (e.target.id === 'tutorialModal') closeTutorialModal();
 }
 
 /* ─── CATÁLOGO SEC Y BÚSQUEDA TICKER -> NOMBRE ─── */
@@ -2156,6 +2241,14 @@ function showWizardStep(step) {
   document.querySelectorAll('.wizard-dot').forEach((d, idx) => d.classList.toggle('active', idx < step));
   document.getElementById(`w-step-${step}`).classList.add('active');
 
+  const wizIframe = document.getElementById('wiz-tutorial-iframe');
+  if (step === 1) {
+    wizIframe.src = getYoutubeEmbedUrl();
+  } else {
+    // Detiene el vídeo si el usuario pasa al paso 2 o 3
+    wizIframe.src = '';
+  }
+
   document.getElementById('wiz-prev-btn').style.visibility = step === 1 ? 'hidden' : 'visible';
   document.getElementById('wiz-next-btn').textContent = step === 3 ? 'Comenzar a Operar' : 'Continuar';
 }
@@ -2234,6 +2327,7 @@ function finalizarWizard() {
   userProfile.transferScope = wizardTransferScope;
 
   localStorage.setItem('tlr_com_profile', JSON.stringify(userProfile));
+  document.getElementById('wiz-tutorial-iframe').src = '';
   document.getElementById('wizardModal').classList.remove('open');
   aplicarPerfilEnInterfaz();
   refreshApp();
